@@ -8,14 +8,14 @@ on:
     - cron: "0 0 * * *"
 
 env:
-  ARGOCD_VERSION: v2.7.2
   SOPS_VERSION: 3.7.3
   VALS_VERSION: 0.25.0
   HELM_SECRETS_VERSION: 4.4.2
+  HELMFILE_VERSION: 0.154.0
   KUBECTL_VERSION: 1.26.1
 
 jobs:
-  docker:
+  build-docker-image:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -33,6 +33,12 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      - name: Get Latest argo-cd version
+        id: get-argocd-version
+        run: |
+          version=$(curl -L https://api.github.com/repos/argoproj/argo-cd/releases/latest | jq -r '.tag_name')
+          echo "ARGOCD_VERSION=${version}" >> $GITHUB_OUTPUT
+
       - name: Build docker image
         uses: docker/build-push-action@v3
         with:
@@ -40,14 +46,15 @@ jobs:
           file: ./Dockerfile
           push: false
           build-args: |
-            ARGOCD_VERSION=${{ env.ARGOCD_VERSION }}
+            ARGOCD_VERSION=${{ steps.get-argocd-version.outputs.ARGOCD_VERSION }}
             SOPS_VERSION=${{ env.SOPS_VERSION }}
             VALS_VERSION=${{ env.VALS_VERSION }}
             HELM_SECRETS_VERSION=${{ env.HELM_SECRETS_VERSION }}
+            HELMFILE_VERSION=${{ env.HELMFILE_VERSION }}
             KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
           tags: |
             ${{ github.repository }}:latest
-            ${{ github.repository }}:${{ env.ARGOCD_VERSION }}-${{ env.HELM_SECRETS_VERSION }}
+            ${{ github.repository }}:${{ steps.get-argocd-version.outputs.ARGOCD_VERSION }}-${{ env.HELM_SECRETS_VERSION }}
 
       - name: Push docker image
         uses: docker/build-push-action@v3
@@ -57,11 +64,12 @@ jobs:
           file: ./Dockerfile
           push: true
           build-args: |
-            ARGOCD_VERSION=${{ env.ARGOCD_VERSION }}
+            ARGOCD_VERSION=${{ steps.get-argocd-version.outputs.ARGOCD_VERSION }}
             SOPS_VERSION=${{ env.SOPS_VERSION }}
             VALS_VERSION=${{ env.VALS_VERSION }}
             HELM_SECRETS_VERSION=${{ env.HELM_SECRETS_VERSION }}
+            HELMFILE_VERSION=${{ env.HELMFILE_VERSION }}
             KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
           tags: |
             ${{ github.repository }}:latest
-            ${{ github.repository }}:${{ env.ARGOCD_VERSION }}-${{ env.HELM_SECRETS_VERSION }}
+            ${{ github.repository }}:${{ steps.get-argocd-version.outputs.ARGOCD_VERSION }}-${{ env.HELM_SECRETS_VERSION }}
