@@ -36,7 +36,7 @@ jobs:
       - name: Get Latest argo-cd version
         id: get-argocd-version
         run: |
-          version=$(curl -L https://api.github.com/repos/argoproj/argo-cd/releases/latest | jq -r '.tag_name')
+          version=$(curl -L https://api.github.com/repos/argoproj/argo-cd/releases | jq  -r '.[]|select((.tag_name|contains("-rc")|not)).tag_name' | sort -V | tail -1)
           echo "ARGOCD_VERSION=${version}" >> $GITHUB_OUTPUT
 
       - name: Build docker image
