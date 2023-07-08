@@ -33,4 +33,4 @@ RUN apt-get update && apt-get install -y \
 USER $ARGOCD_USER_ID
 
 RUN helm plugin install --version ${HELM_SECRETS_VERSION} https://github.com/jkroepke/helm-secrets \
-    && sed -i '2iHELM_SECRETS_TMP=$(mktemp -d)\nexport HELM_SECRETS_TMP\nHELM_SECRETS_DEC_DIR=$(mktemp -d -p $HELM_SECRETS_TMP)\nexport HELM_SECRETS_DEC_DIR' "$(helm secrets dir)/scripts/wrapper/helm.sh"
+    && sed -i '2iHELM_SECRETS_DEC_PREFIX=$(echo "$*" | sha256sum | cut -d " "  -f1)\nexport HELM_SECRETS_DEC_PREFIX' "$(helm secrets dir)/scripts/wrapper/helm.sh"
