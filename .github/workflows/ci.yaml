@@ -12,6 +12,7 @@ env:
   VALS_VERSION: 0.25.0
   HELM_SECRETS_VERSION: 4.4.2
   HELMFILE_VERSION: 0.154.0
+  HELM_GIT_VERSION: 0.15.1
   KUBECTL_VERSION: 1.26.1
 
 jobs:
@@ -51,6 +52,7 @@ jobs:
             VALS_VERSION=${{ env.VALS_VERSION }}
             HELM_SECRETS_VERSION=${{ env.HELM_SECRETS_VERSION }}
             HELMFILE_VERSION=${{ env.HELMFILE_VERSION }}
+            HELM_GIT_VERSION=${{ env.HELM_GIT_VERSION }}
             KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
           tags: |
             ${{ github.repository }}:latest
@@ -69,6 +71,7 @@ jobs:
             VALS_VERSION=${{ env.VALS_VERSION }}
             HELM_SECRETS_VERSION=${{ env.HELM_SECRETS_VERSION }}
             HELMFILE_VERSION=${{ env.HELMFILE_VERSION }}
+            HELM_GIT_VERSION=${{ env.HELM_GIT_VERSION }}
             KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
           tags: |
             ${{ github.repository }}:latest
