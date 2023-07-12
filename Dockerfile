@@ -35,4 +35,5 @@ USER $ARGOCD_USER_ID
 
 RUN helm plugin install --version ${HELM_SECRETS_VERSION} https://github.com/jkroepke/helm-secrets \
     && helm plugin install --version ${HELM_GIT_VERSION} https://github.com/aslafy-z/helm-git \
-    && sed -i '2iHELM_SECRETS_DEC_PREFIX=$(echo "$*" | sha256sum | cut -d " "  -f1)\nexport HELM_SECRETS_DEC_PREFIX' "$(helm secrets dir)/scripts/wrapper/helm.sh"
+    && sed -i '2iHELM_SECRETS_DEC_PREFIX=$(echo "$*" | sha256sum | cut -d " "  -f1)\nexport HELM_SECRETS_DEC_PREFIX' "$(helm secrets dir)/scripts/wrapper/helm.sh" \
+    && git config --global credential.helper store
