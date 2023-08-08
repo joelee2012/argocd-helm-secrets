@@ -6,6 +6,7 @@ ARG HELM_SECRETS_VERSION
 ARG KUBECTL_VERSION
 ARG HELMFILE_VERSION
 ARG HELM_GIT_VERSION
+ARG YQ_VERSION
 # vals or sops
 ENV HELM_SECRETS_BACKEND="sops" \
     HELM_SECRETS_HELM_PATH=/usr/local/bin/helm \
@@ -29,7 +30,11 @@ RUN apt-get update && apt-get install -y \
     | tar xzf - -C /usr/local/bin/ vals && chmod +x /usr/local/bin/vals \
     && curl -fsSL https://github.com/helmfile/helmfile/releases/download/v${HELMFILE_VERSION}/helmfile_${HELMFILE_VERSION}_linux_amd64.tar.gz \
     | tar xzf - -C /usr/local/bin helmfile && chmod +x /usr/local/bin/helmfile \
-    && ln -sf "$(helm env HELM_PLUGINS)/helm-secrets/scripts/wrapper/helm.sh" /usr/local/sbin/helm
+    && ln -sf "$(helm env HELM_PLUGINS)/helm-secrets/scripts/wrapper/helm.sh" /usr/local/sbin/helm \
+    && curl -fsSLo /usr/local/sbin/kustomize https://raw.githubusercontent.com/joelee2012/skustomize/main/skustomize \
+    && chmod +x /usr/local/sbin/kustomize \
+    && curl -fsSL https://github.com/mikefarah/yq/releases/download/v${YQ_VERSION}/yq_linux_amd64 -o /usr/local/bin/yq \
+    && chmod +x /usr/local/bin/yq
 
 USER $ARGOCD_USER_ID
 

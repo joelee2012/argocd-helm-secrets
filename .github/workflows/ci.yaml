@@ -14,6 +14,7 @@ env:
   HELMFILE_VERSION: 0.154.0
   HELM_GIT_VERSION: 0.15.1
   KUBECTL_VERSION: 1.26.1
+  YQ_VERSION: 4.34.2
 
 jobs:
   build-docker-image:
@@ -54,6 +55,7 @@ jobs:
             HELMFILE_VERSION=${{ env.HELMFILE_VERSION }}
             HELM_GIT_VERSION=${{ env.HELM_GIT_VERSION }}
             KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
+            YQ_VERSION=${{ env.YQ_VERSION }}
           tags: |
             ${{ github.repository }}:latest
             ${{ github.repository }}:${{ steps.get-argocd-version.outputs.ARGOCD_VERSION }}-${{ env.HELM_SECRETS_VERSION }}
@@ -73,6 +75,7 @@ jobs:
             HELMFILE_VERSION=${{ env.HELMFILE_VERSION }}
             HELM_GIT_VERSION=${{ env.HELM_GIT_VERSION }}
             KUBECTL_VERSION=${{ env.KUBECTL_VERSION }}
+            YQ_VERSION=${{ env.YQ_VERSION }}
           tags: |
             ${{ github.repository }}:latest
             ${{ github.repository }}:${{ steps.get-argocd-version.outputs.ARGOCD_VERSION }}-${{ env.HELM_SECRETS_VERSION }}
