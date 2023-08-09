@@ -10,6 +10,7 @@ ARG YQ_VERSION
 # vals or sops
 ENV HELM_SECRETS_BACKEND="sops" \
     HELM_SECRETS_HELM_PATH=/usr/local/bin/helm \
+    KUSTOMIZE_BIN=/usr/local/bin/kustomize \
     HELM_PLUGINS="/home/argocd/.local/share/helm/plugins/" \
     HELM_SECRETS_VALUES_ALLOW_SYMLINKS=false \
     HELM_SECRETS_VALUES_ALLOW_ABSOLUTE_PATH=false \
