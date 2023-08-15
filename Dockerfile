@@ -10,12 +10,13 @@ ARG YQ_VERSION
 # vals or sops
 ENV HELM_SECRETS_BACKEND="sops" \
     HELM_SECRETS_HELM_PATH=/usr/local/bin/helm \
-    KUSTOMIZE_BIN=/usr/local/bin/kustomize \
-    HELM_PLUGINS="/home/argocd/.local/share/helm/plugins/" \
     HELM_SECRETS_VALUES_ALLOW_SYMLINKS=false \
     HELM_SECRETS_VALUES_ALLOW_ABSOLUTE_PATH=false \
     HELM_SECRETS_VALUES_ALLOW_PATH_TRAVERSAL=false \
-    HELM_SECRETS_WRAPPER_ENABLED=true
+    HELM_SECRETS_WRAPPER_ENABLED=true \
+    HELM_SECRETS_DECRYPT_SECRETS_IN_TMP_DIR=true \
+    HELM_PLUGINS="/home/argocd/.local/share/helm/plugins/" \
+    KUSTOMIZE_BIN=/usr/local/bin/kustomize
 
 USER root
 
@@ -41,5 +42,6 @@ USER $ARGOCD_USER_ID
 
 RUN helm plugin install --version ${HELM_SECRETS_VERSION} https://github.com/jkroepke/helm-secrets \
     && helm plugin install --version ${HELM_GIT_VERSION} https://github.com/aslafy-z/helm-git \
-    && sed -i '2iHELM_SECRETS_DEC_PREFIX=$(echo "$*" | sha256sum | cut -d " "  -f1)\nexport HELM_SECRETS_DEC_PREFIX' "$(helm secrets dir)/scripts/wrapper/helm.sh" \
+# secrets plugin support decrypt secrets into temp folder
+#    && sed -i '2iHELM_SECRETS_DEC_PREFIX=$(echo "$*" | sha256sum | cut -d " "  -f1)\nexport HELM_SECRETS_DEC_PREFIX' "$(helm secrets dir)/scripts/wrapper/helm.sh" \
     && git config --global credential.helper store
