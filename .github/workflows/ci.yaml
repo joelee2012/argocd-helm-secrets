@@ -19,6 +19,11 @@ env:
 jobs:
   build-docker-image:
     runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+      attestations: write
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,11 +40,19 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      - name: Login to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Get Latest argo-cd version
         id: get-argocd-version
         run: |
           version=$(curl -L https://api.github.com/repos/argoproj/argo-cd/releases | jq  -r '.[]|select((.tag_name|contains("-rc")|not)).tag_name' | sort -V | tail -1)
           echo "ARGOCD_VERSION=${version}" >> $GITHUB_OUTPUT
+          echo "IMAGE_TAG=${version}-${{ env.HELM_SECRETS_VERSION }}" >> $GITHUB_OUTPUT
 
       - name: Build docker image
         uses: docker/build-push-action@v5
@@ -58,7 +71,9 @@ jobs:
             YQ_VERSION=${{ env.YQ_VERSION }}
           tags: |
             ${{ github.repository }}:latest
-            ${{ github.repository }}:${{ steps.get-argocd-version.outputs.ARGOCD_VERSION }}-${{ env.HELM_SECRETS_VERSION }}
+            ${{ github.repository }}:${{ steps.get-argocd-version.outputs.IMAGE_TAG }}
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ steps.get-argocd-version.outputs.IMAGE_TAG }}
 
       - name: Push docker image
         uses: docker/build-push-action@v5
@@ -78,4 +93,13 @@ jobs:
             YQ_VERSION=${{ env.YQ_VERSION }}
           tags: |
             ${{ github.repository }}:latest
-            ${{ github.repository }}:${{ steps.get-argocd-version.outputs.ARGOCD_VERSION }}-${{ env.HELM_SECRETS_VERSION }}
+            ${{ github.repository }}:${{ steps.get-argocd-version.outputs.IMAGE_TAG }}
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ steps.get-argocd-version.outputs.IMAGE_TAG }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ghcr.io/${{ github.repository }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
